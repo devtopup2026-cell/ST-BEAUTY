@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f8fa;
+  --foreground: #183247;
+  --font-geist-sans: "Leelawadee UI", Tahoma, Arial, sans-serif;
+  --font-geist-mono: Consolas, monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  margin: 0;
+  font-family: "Leelawadee UI", Tahoma, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), select { cursor: pointer; }
+a, button, input, select, textarea { scroll-margin-top: 180px; }
+:focus-visible { outline: 3px solid #e87533; outline-offset: 3px; }
+::selection { background: #ffdec2; color: #183247; }
+img { max-width: 100%; }
+input, select, textarea { color: #183247; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+.bloom-hero{background:linear-gradient(115deg,#f7eee6,#f7f1eb 60%,#eee6df)}
+body{overflow-wrap:break-word}main{flex:1}::selection{background:#e9c9cd;color:#71384f}

@@ -1,0 +1,1 @@
+export default function TestOrderBadge({id}:{id:string}){if(!id.startsWith('TEST-'))return null;return <span className="my-2 inline-block rounded-lg border border-amber-500 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-800">ออเดอร์ทดสอบ — ไม่มีการรับเงินจริง</span>;}

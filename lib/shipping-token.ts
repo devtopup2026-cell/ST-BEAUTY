@@ -1,0 +1,7 @@
+import {createHash,createHmac,timingSafeEqual} from 'node:crypto';
+import type {ShippingEstimate} from '@/types/shipping';
+export type SignedShipping=ShippingEstimate & {memberId:string;fingerprint:string;expiresAt:number;version:1};
+function secret(){const value=process.env.CUSTOMER_SESSION_SECRET;if(!value||value.length<32)throw Error('CUSTOMER_SESSION_SECRET is missing');return value;}
+export function shippingFingerprint(value:unknown){return createHash('sha256').update(JSON.stringify(value)).digest('hex');}
+export function signShipping(data:SignedShipping){const payload=Buffer.from(JSON.stringify(data)).toString('base64url');return payload+'.'+createHmac('sha256',secret()).update(payload).digest('base64url');}
+export function verifyShipping(token:unknown):SignedShipping|null{try{if(typeof token!=='string'||token.length>12000)return null;const parts=token.split('.');if(parts.length!==2)return null;const [payload,sig]=parts;const expected=Buffer.from(createHmac('sha256',secret()).update(payload).digest('base64url')),actual=Buffer.from(sig);if(expected.length!==actual.length||!timingSafeEqual(expected,actual))return null;const data=JSON.parse(Buffer.from(payload,'base64url').toString()) as SignedShipping;if(data.version!==1||data.status!=='priced'||!Number.isFinite(data.expiresAt)||data.expiresAt<=Date.now()||typeof data.memberId!=='string'||typeof data.fingerprint!=='string')return null;return data;}catch{return null;}}

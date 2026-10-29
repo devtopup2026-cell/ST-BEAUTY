@@ -1,0 +1,1 @@
+import {NextResponse} from 'next/server';import {catalogProducts} from '@/lib/catalog';export async function GET(){try{return NextResponse.json({success:true,products:await catalogProducts()});}catch(e){console.error('CATALOG_ERROR',e);return NextResponse.json({success:false,error:'โหลดสินค้าไม่สำเร็จ กรุณาลองอีกครั้ง'},{status:503});}}

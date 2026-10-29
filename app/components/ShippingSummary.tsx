@@ -1,0 +1,4 @@
+export default function ShippingSummary({order}:{order:{shippingMethod?:string;shippingFee?:number;itemsSubtotal?:number;vatAmount?:number;vatRate?:number}}){
+  if(!order.shippingMethod||order.shippingMethod==='legacy')return <span className="my-3 block text-sm text-slate-600">รายการเดิมก่อนตั้งระบบค่าส่ง</span>;
+  return <span className="my-4 block rounded-xl border border-slate-300 p-4 text-sm font-normal text-slate-600"><span className="block">รับสินค้า: {({pickup:'รับที่ร้าน',local:'รถร้าน',courier:'บริษัทขนส่ง'} as Record<string,string>)[order.shippingMethod]||order.shippingMethod}</span><span className="block">ยอดสินค้า: ฿{(order.itemsSubtotal??0).toLocaleString('th-TH')}</span><span className="block">ค่าจัดส่ง: ฿{(order.shippingFee??0).toLocaleString('th-TH')}</span><span className="block">VAT {Math.round((order.vatRate??0)*100)}%: ฿{(order.vatAmount??0).toLocaleString('th-TH',{minimumFractionDigits:2})}</span></span>;
+}

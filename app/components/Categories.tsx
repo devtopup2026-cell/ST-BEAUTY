@@ -1,0 +1,1 @@
+import Link from 'next/link';import {categories} from '@/lib/store-config';export default function Categories(){return <section className="p-8 text-slate-900"><h2>หมวดหมู่สินค้า</h2>{categories.map(c=><Link className="m-3 inline-block" href={'/products?category='+encodeURIComponent(c)} key={c}>{c}</Link>)}</section>}

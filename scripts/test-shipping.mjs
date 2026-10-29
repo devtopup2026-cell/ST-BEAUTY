@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {priceShipping} from '../lib/shipping-policy.ts';
+import {calculateOrderTotals} from '../lib/order-totals.ts';
+import {verifyShipping,signShipping} from '../lib/shipping-token.ts';
+import {estimateShipping,fingerprintShipping} from '../lib/shipping-server.ts';
+assert.deepEqual(calculateOrderTotals(145,50),{subtotal:145,fee:50,vatRate:0.07,vatAmount:13.65,total:208.65});
+assert.equal(calculateOrderTotals(5000,50).total,5403.5);
+assert.equal(calculateOrderTotals(0.01,50).vatAmount,3.5);
+assert.throws(()=>calculateOrderTotals(-1,50));assert.throws(()=>calculateOrderTotals(NaN,50));
+const base={method:'courier',subtotal:145,distanceMeters:null,eligible:true,totalWeightKg:null,maxWeightKg:0,normalAccess:false,postalCode:'10100'};
+for(const method of ['courier']){const q=priceShipping({...base,method});assert.equal(q.fee,50);assert.equal(q.vatAmount,13.65);assert.equal(q.total,208.65);}
+assert.equal(priceShipping({...base,eligible:false}).status,'priced');
+assert.equal(priceShipping({...base,method:'local'}).status,'quote');
+assert.equal(priceShipping({...base,method:'pickup'}).status,'quote');
+process.env.CUSTOMER_SESSION_SECRET='test-only-flat-shipping-secret-32-characters-long';
+delete process.env.SHIPPING_MAX_WEIGHT_KG;delete process.env.GOOGLE_MAPS_API_KEY;
+const product={id:1,name:'นาฬิกา',category:'นาฬิกา',price:145,unit:'ชิ้น',stock:10,weightKg:null,requiresShippingQuote:false};
+const input={memberId:'member-a',method:'courier',address:'test only',postalCode:'10100',normalAccess:false,items:[{productId:1,quantity:1}],products:[product]};
+let providerCalls=0;const q=await estimateShipping(input,async()=>{providerCalls++;throw Error('Must not call provider');});
+assert.equal(providerCalls,0);assert.equal(q.total,208.65);assert.equal(q.fee,50);
+const verified=verifyShipping(q.token);assert.equal(verified.vatAmount,13.65);assert.equal(verified.memberId,'member-a');
+assert.equal(verifyShipping(q.token+'x'),null);
+assert.equal(verifyShipping(signShipping({...verified,expiresAt:Date.now()-1})),null);
+assert.notEqual(verified.fingerprint,fingerprintShipping('member-b',input.items,input.products,input.address,input.postalCode,input.method,false));
+assert.notEqual(verified.fingerprint,fingerprintShipping(input.memberId,input.items,input.products,'changed address',input.postalCode,input.method,false));
+assert.notEqual(verified.fingerprint,fingerprintShipping(input.memberId,input.items,[{...product,price:150}],input.address,input.postalCode,input.method,false));
+assert.equal((await estimateShipping({...input,products:[{...product,requiresShippingQuote:true}]})).status,'priced');
+console.log('PASS: flat fee, VAT and rounding, courier only, no map/weight dependency, no bulky hold, signed totals, expiry and changed order data');
