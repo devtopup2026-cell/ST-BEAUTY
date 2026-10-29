@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {fetchOrderList} from '../lib/load-orders.ts';
+const signal=new AbortController().signal;
+const ok=()=>Response.json({success:true,orders:[{id:'TEST-example'}]});
+let calls=0;
+const successful=async(_url,options)=>{calls++;assert.equal(options.method,'GET');return ok();};
+assert.equal((await fetchOrderList(signal,successful))[0].id,'TEST-example');assert.equal(calls,1);
+calls=0;assert.equal((await fetchOrderList(signal,async()=>++calls===1?new Response('',{status:503}):ok())).length,1);assert.equal(calls,2);
+calls=0;await assert.rejects(fetchOrderList(signal,async()=>{calls++;return new Response('',{status:503});}));assert.equal(calls,2);
+calls=0;await assert.rejects(fetchOrderList(signal,async()=>{calls++;return new Response('',{status:401});}));assert.equal(calls,1);
+calls=0;assert.equal((await fetchOrderList(signal,async()=>{calls++;if(calls===1)throw new TypeError('Network error');return ok();})).length,1);assert.equal(calls,2);
+calls=0;await assert.rejects(fetchOrderList(signal,async()=>{calls++;return Response.json({success:false});}));assert.equal(calls,1);
+const abort=new AbortController();abort.abort();calls=0;await assert.rejects(fetchOrderList(abort.signal,async()=>{calls++;throw new DOMException('Aborted','AbortError');}));assert.equal(calls,1);
+console.log('PASS: success, transient recovery, bounded retry, no auth retry, network recovery, invalid data, cancellation; GET only');

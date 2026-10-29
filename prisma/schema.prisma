@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Product {
+  id               Int         @id
+  name             String
+  slug             String      @unique
+
+  brand            String      @default("")
+  category         String      @default("Other")
+
+  shortDescription String?
+  description      String?
+
+  image            String
+  thumbnail        String?
+  images           String[]    @default([])
+
+  price            Float
+  compareAtPrice   Float?
+
+  weightKg         Float?
+  requiresShippingQuote Boolean @default(false)
+  unit             String      @default("ชิ้น")
+  stock            Int         @default(0)
+
+  rating           Float       @default(0)
+  reviewCount      Int         @default(0)
+
+  featured         Boolean     @default(false)
+  isNew            Boolean     @default(false)
+
+  specifications   Json?
+  warranty         String?
+  sku              String?
+
+  orderItems       OrderItem[]
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+
+  fullName   String
+  email      String   @unique
+  password   String?
+
+  phone      String
+  address    String
+  postalCode String
+
+  orders     Order[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Order {
+  id            String   @id
+
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+
+  recipientName      String
+  recipientEmail     String
+  recipientPhone     String
+  shippingAddress    String
+  shippingPostalCode String
+
+  itemsSubtotal Float @default(0)
+  shippingFee Float @default(0)
+  vatAmount Float @default(0)
+  vatRate Float @default(0)
+  shippingMethod String @default("legacy")
+  total         Float
+
+  paymentMethod String
+
+  paymentSlip   String?
+
+  status        String
+
+  createdAt     DateTime @default(now())
+
+  items         OrderItem[]
+
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  unit      String  @default("ชิ้น")
+  quantity  Int
+  price     Float
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+
+  name      String
+  email     String   @unique
+  password  String
+
+  role      String   @default("ADMIN")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

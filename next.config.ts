@@ -1,0 +1,3 @@
+import type {NextConfig} from 'next';
+const categories:Record<string,string>={'beauty':'Beauty','fashion':'Fashion','luxury':'Brandname'};
+const nextConfig:NextConfig={experimental:{cpus:1},images:{remotePatterns:[{protocol:'https',hostname:'res.cloudinary.com'}]},async redirects(){return [...['index','products','product','contact','about'].map(p=>({source:'/'+p+'.html',destination:p==='index'?'/':p==='product'||p==='products'?'/products':p==='about'?'/contact':'/'+p,permanent:true})),...Object.entries(categories).map(([p,c])=>({source:'/'+p+'.html',destination:'/products?category='+c,permanent:true}))];}};export default nextConfig;

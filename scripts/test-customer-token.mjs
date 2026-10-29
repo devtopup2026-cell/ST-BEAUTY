@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {createHmac} from 'node:crypto';
+import {createCustomerToken,verifyCustomerToken} from '../lib/customer-token.ts';
+process.env.CUSTOMER_SESSION_SECRET='development-test-only-secret-at-least-32-characters';
+const token=createCustomerToken('customer-a');
+assert.equal(verifyCustomerToken(token),'customer-a');
+assert.equal(verifyCustomerToken('customer-a'),null);
+const forged=Buffer.from(JSON.stringify({id:'customer-b',exp:Date.now()+60000})).toString('base64url');
+assert.equal(verifyCustomerToken(forged+'.'+token.split('.')[1]),null);
+const expired=Buffer.from(JSON.stringify({id:'customer-a',exp:Date.now()-1})).toString('base64url');
+const signature=createHmac('sha256',process.env.CUSTOMER_SESSION_SECRET).update(expired).digest('base64url');
+assert.equal(verifyCustomerToken(expired+'.'+signature),null);
+assert.equal(verifyCustomerToken(token+'.extra'),null);
+console.log('PASS: valid, raw ID, forged identity, expired, malformed sessions');

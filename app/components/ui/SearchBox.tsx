@@ -1,0 +1,5 @@
+"use client";
+import {useEffect,useState,useId,type FormEvent} from 'react';
+import {useRouter,useSearchParams} from 'next/navigation';
+import {Search} from 'lucide-react';
+export default function SearchBox(){const id=useId();const router=useRouter(),params=useSearchParams();const [search,setSearch]=useState('');useEffect(()=>{setSearch(params.get('search')||'');},[params]);function submit(e:FormEvent){e.preventDefault();const q=search.trim();router.push(q?'/products?search='+encodeURIComponent(q):'/products');}return <form onSubmit={submit} role="search" className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-[#f6f7f8] p-1.5"><label htmlFor={id} className="sr-only">ค้นหาสินค้า</label><input id={id} type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="ค้นหาเครื่องสำอาง แฟชั่น แบรนด์เนม…" className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-[#71384f] outline-none placeholder:text-slate-400"/><button aria-label="ค้นหา" className="rounded-md bg-[#71384f] p-2 text-white hover:bg-[#25475f]"><Search size={19}/></button></form>}

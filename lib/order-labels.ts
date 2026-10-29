@@ -1,0 +1,1 @@
+export function orderStatusLabel(status:string){return ({'All':'ทั้งหมด','Pending Payment':'รอตรวจสอบการชำระเงิน','Paid':'อนุมัติแล้ว','Shipping':'กำลังจัดส่ง','Completed':'เสร็จสิ้น','Rejected':'ยกเลิก / ไม่อนุมัติ'} as Record<string,string>)[status]||status;}

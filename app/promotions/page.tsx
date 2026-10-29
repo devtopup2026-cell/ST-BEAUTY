@@ -1,0 +1,2 @@
+import Header from '../components/layout/Header';import Footer from '../components/Footer';import Link from 'next/link';
+export default function Promotions(){return <><Header/><main className="mx-auto w-full max-w-5xl flex-1 px-6 py-16 text-slate-900"><h1 className="mb-6 text-4xl font-bold">โปรโมชั่น</h1><p className="mb-6 text-slate-600">ยังไม่มีโปรโมชั่นในขณะนี้ ติดตามคอลเลกชันและข้อเสนอใหม่ได้ที่หน้านี้</p><Link className="inline-block rounded-xl bg-rose-600 px-6 py-3" href="/contact">ติดต่อร้าน</Link></main><Footer/></>}

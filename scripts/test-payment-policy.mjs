@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {paymentSettings,isTestOrder} from '../lib/payment-policy.ts';
+assert.equal(paymentSettings({NODE_ENV:'development'}).mode,'closed');
+assert.equal(paymentSettings({NODE_ENV:'development',PAYMENT_TEST_MODE:'true'}).mode,'test');
+assert.equal(paymentSettings({NODE_ENV:'production',PAYMENT_TEST_MODE:'true'}).mode,'closed');
+assert.equal(paymentSettings({NODE_ENV:'development',PAYMENT_TEST_MODE:'false'}).mode,'closed');
+const live={NODE_ENV:'production',NEXT_PUBLIC_PAYMENT_QR_URL:'https://example.com/real-qr.png'};
+assert.equal(paymentSettings(live).mode,'live');
+assert.equal(paymentSettings({...live,PAYMENT_TEST_MODE:'true'}).mode,'live');
+assert.equal(paymentSettings({...live,NODE_ENV:'development',PAYMENT_TEST_MODE:'true'}).mode,'test');
+assert.equal(isTestOrder('TEST-NX-20261022-123456'),true);
+assert.equal(isTestOrder('NX-20261022-123456'),false);
+assert.equal(paymentSettings({NEXT_PUBLIC_PAYMENT_QR_URL:'  '}).mode,'closed');
+console.log('PASS: 10 payment mode and test order classification assertions');
